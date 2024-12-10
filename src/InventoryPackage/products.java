@@ -41,7 +41,7 @@ public class products {
         this.stock = stock;
     }
 
-    @Override
+   
     public String toString() {
         return "Product [ID=" + product_id + ", Name=" + product_name + ", Price=" + price + ", Stock=" + stock + "]";
     }
