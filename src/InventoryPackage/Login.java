@@ -3,27 +3,33 @@ package InventoryPackage;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
+
 import java.awt.Color;
 import java.awt.Cursor;
 
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.Font;
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 
 import InventoryPackage.CustomSwingComponents.*;
-
 
 public class Login {
 
 	private JFrame frmExodus;
 	private RoundedTextField EmailField;
 	private RoundedPasswordField passwordField;
-
+	private static String loginResult = ""; 
+	private static String Email;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -51,11 +57,22 @@ public class Login {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
+		ImageIcon BG = new ImageIcon(getClass().getResource("/Assets/bg.png"));
+        Image backgroundImage = BG.getImage();
+        
+        
+        ImageIcon lg = new ImageIcon(getClass().getResource("/Assets/logo.png"));
+        Image logo = lg.getImage();
+        
+        ImageIcon as1 = new ImageIcon(getClass().getResource("/Assets/Asset1.png"));
+        Image Asset1 = as1.getImage();
+        
 		frmExodus = new JFrame();
 		frmExodus.setResizable(false);
-		frmExodus.setTitle("Exodus");
-		frmExodus.getContentPane().setBackground(Color.LIGHT_GRAY);
-		frmExodus.setBounds(100, 100, 769, 639);
+		frmExodus.setTitle("Exodus | Log-In");
+		frmExodus.getContentPane().setBackground(new Color(228, 228, 228));
+		frmExodus.setBounds(100, 100, 770, 639);
 		frmExodus.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmExodus.getContentPane().setLayout(null);
 		
@@ -64,8 +81,9 @@ public class Login {
 		layeredPane.setBounds(0, 0, 760, 608);
 		frmExodus.getContentPane().add(layeredPane);
 		
-		JPanel LoginPanel = new JPanel();
-		LoginPanel.setBackground(new Color(128, 128, 128));
+		RoundedPanel LoginPanel = new RoundedPanel(100,100);
+		LoginPanel.setOpaque(false);
+		LoginPanel.setBackgroundImage(backgroundImage);
 		LoginPanel.setBounds(0, 39, 760, 526);
 		layeredPane.add(LoginPanel);
 		LoginPanel.setLayout(null);
@@ -82,10 +100,12 @@ public class Login {
 		SubText.setBounds(231, 144, 151, 14);
 		LoginPanel.add(SubText);
 		
-		JPanel Logo = new JPanel();
-		Logo.setBounds(499, 70, 175, 175);
-		LoginPanel.add(Logo);
+		RoundedPanel Logo = new RoundedPanel(0,0);
+		Logo.setBackgroundImage(logo);
 		
+		Logo.setBounds(439, 45, 300, 200);
+		LoginPanel.add(Logo);
+		LoginPanel.setBackgroundImage(backgroundImage);
 		EmailField = new RoundedTextField(20,20);
 		EmailField.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		EmailField.setToolTipText("Email");
@@ -113,6 +133,23 @@ public class Login {
 		JButton LoginButton = new RoundedButton("Log-In", 10, 10);
 		LoginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				String email = EmailField.getText();
+                String password = new String(passwordField.getPassword());
+                try {
+                    if (dbHandler.loginUser(email, password)) {
+                        loginResult = "Valid";
+                        Email = email;
+                        frmExodus.dispose(); // Close the login window
+                    } else {
+                    	JOptionPane.showMessageDialog(frmExodus, "Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                    }
+                    
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    loginResult = "Error";
+                }
+				
 			}
 		});
 		LoginButton.setBounds(533, 404, 120, 30);
@@ -138,15 +175,27 @@ public class Login {
 		RegisterBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		RegisterBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				loginResult = "Register";
 			}
 		});
 		RegisterBtn.setBounds(608, 445, 108, 23);
 		LoginPanel.add(RegisterBtn);
 		
-		JPanel AssetPanel = new JPanel();
-		AssetPanel.setBounds(61, 208, 276, 400);
-		layeredPane.add(AssetPanel);
-		AssetPanel.setBackground(Color.DARK_GRAY);
+		RoundedPanel AssetPanel = new RoundedPanel(0,0);
+		AssetPanel.setOpaque(false);
+		AssetPanel.setBorder(null);
+		AssetPanel.setBounds(-92, 149, 597, 419);
+		AssetPanel.setBackgroundImage(Asset1);
+		LoginPanel.add(AssetPanel);
+		
 		layeredPane.setLayer(AssetPanel, 1);
 	}
+	
+	public static String getLoginResult() {
+        return loginResult;
+    }
+	public static String getEmail() {
+        return Email;
+    }
 }

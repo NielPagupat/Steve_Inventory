@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.Insets;
+import java.awt.geom.RoundRectangle2D;
 
 public class CustomSwingComponents {
 
@@ -106,42 +107,60 @@ public class CustomSwingComponents {
     
     public static class RoundedPanel extends JPanel {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -2135189083898044417L;
-    	
-		private int arcWidth;
+        private static final long serialVersionUID = -2135189083898044417L;
+
+        private int arcWidth;
         private int arcHeight;
+        private Image backgroundImage;
         
-        public RoundedPanel (int arcWidth, int arcHeight) {
-        	super();
+        private boolean setBorder = false;
+
+        public RoundedPanel(int arcWidth, int arcHeight) {
+            super();
             this.arcWidth = arcWidth;
             this.arcHeight = arcHeight;
-        	
+            this.setBorder(null);
+            this.setForeground(null);
+        }
+
+        public void setBackgroundImage(Image backgroundImage) {
+            this.backgroundImage = backgroundImage;
+            repaint(); // Repaint the panel to show the new image
         }
         
+        public void setBorder() {
+        	this.setBorder = true;
+        	repaint();
+        }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // Paint rounded background
-            g2d.setColor(getBackground());
-            g2d.fillRoundRect(0, 0, getWidth(), getHeight(), arcWidth, arcHeight);
+            // Clip the painting area to a rounded rectangle
+            Shape clip = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), arcWidth, arcHeight);
+            g2d.setClip(clip);
 
-            // Optional: Draw a border
-            g2d.setColor(getForeground());
-            g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arcWidth, arcHeight);
+            // Paint background image if available
+            if (backgroundImage != null) {
+                g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            } else {
+                // Paint rounded background
+                g2d.setColor(getBackground());
+                g2d.fill(clip);
+            }
+
+            // Draw border explicitly
+            
+            if (setBorder) {
+            	g2d.setColor(getForeground());
+                g2d.draw(new RoundRectangle2D.Float(0.5f, 0.5f, getWidth() - 1, getHeight() - 1, arcWidth, arcHeight));
+			}
 
             g2d.dispose();
 
-            super.paintComponent(g);
-        }
-
-        @Override
-        public void paintBorder(Graphics g) {
-            // Prevent default border painting
+            // Remove default background painting entirely
         }
     }
 }

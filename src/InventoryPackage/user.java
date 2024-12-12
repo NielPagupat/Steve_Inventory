@@ -5,15 +5,14 @@ public class user {
     private String password;
     private String firstName;
     private String lastName;
-    private String businessName;
 
     // Constructor
-    public user(String email, String password, String firstName, String lastName, String businessName) {
+    public user(String email, String password, String firstName, String lastName) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.businessName = businessName;
+
     }
 
     // Getter and Setter for email
@@ -52,13 +51,5 @@ public class user {
         this.lastName = lastName;
     }
 
-    // Getter and Setter for businessName
-    public String getBusinessName() {
-        return businessName;
-    }
-
-    public void setBusinessName(String businessName) {
-        this.businessName = businessName;
-    }
 }
  

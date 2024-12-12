@@ -56,6 +56,29 @@ public class dbHandler {
         }
         return productList;
     }
+    
+    public static products getProduct(int productId, String owner) throws SQLException  {
+    	String query = "SELECT * FROM product_table WHERE owner = ? AND product_id = ?";
+    	try (Connection conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+               pstmt.setString(1, owner);
+               pstmt.setInt(2, productId);
+
+               try (ResultSet rs = pstmt.executeQuery()) {
+                   if (rs.next()) {
+                       int id = rs.getInt("product_id");
+                       String name = rs.getString("product_name");
+                       float price = rs.getFloat("price");
+                       // Extract other fields as needed
+
+                       return new products(id, name, price);
+                   } else {
+                       return null; // or throw an exception if no product found
+                   }
+              }
+           }
+    }
 
     // Update an existing product
     public static void updateProduct(products product, String owner) throws SQLException {
@@ -90,7 +113,7 @@ public class dbHandler {
     
  // Register a new user
     public static boolean registerUser(user newUser) throws SQLException {
-        String query = "INSERT INTO users (email, password, first_name, last_name, business_name) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO users (email, password, firstname, lastname) VALUES (?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
@@ -98,7 +121,7 @@ public class dbHandler {
             pstmt.setString(2, newUser.getPassword());
             pstmt.setString(3, newUser.getFirstName());
             pstmt.setString(4, newUser.getLastName());
-            pstmt.setString(5, newUser.getBusinessName());
+        
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0; // Return true if a user was successfully registered
@@ -135,15 +158,14 @@ public class dbHandler {
     }
 
     // Update user attributes (except email)
-    public static boolean updateUser(String email, String firstName, String lastName, String businessName) throws SQLException {
-        String query = "UPDATE users SET first_name = ?, last_name = ?, business_name = ? WHERE email = ?";
+    public static boolean updateUser(String email, String firstName, String lastName) throws SQLException {
+        String query = "UPDATE users SET first_name = ?, last_name = ? WHERE email = ?";
         try (Connection conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, firstName);
             pstmt.setString(2, lastName);
-            pstmt.setString(3, businessName);
-            pstmt.setString(4, email);
+            pstmt.setString(3, email);
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0; // Return true if user attributes were successfully updated
